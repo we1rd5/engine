@@ -37,5 +37,17 @@ pixels = img.load()
 for x in range(img.size[0]):
     for y in range(img.size[1]):
         p = pixels[x, y]
-        pixels[x, y] = (int(0 * p[0]), int(0.587 * p[1]), int(0.144 * p[2]), 255)
-img.save("grey_img.png")
+        pixels[x, y] = (0, p[1], p[2], 255)
+img.save("deleted_red_img.png")
+pixels = img.load()
+for x in range(img.size[0]):
+    for y in range(img.size[1]):
+        p = pixels[x, y]
+        pixels[x, y] = (p[0], 0, p[2], 255)
+img.save("deleted_green_img.png")
+pixels = img.load()
+for x in range(img.size[0]):
+    for y in range(img.size[1]):
+        p = pixels[x, y]
+        pixels[x, y] = (p[0], p[1], 0, 255)
+img.save("deleted_blue_img.png")
