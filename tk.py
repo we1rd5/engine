@@ -164,6 +164,8 @@ class AnalyticsExpressions:
     def close_analytics(cls):
         for btn in cls.buttons:
             btn.destroy()
+        if cls.answer_label is not None:
+            cls.answer_label.destroy()
         Menu.open_menu()
         
 
@@ -210,6 +212,8 @@ class GraphBuilder:
         x_from_box.place(x=120, y=135, height=50, width=50)
         x_to_box = tk.Entry()
         x_to_box.place(x=120, y=215, height=50, width=50)
+        x_from_box.insert("end", "-10")
+        x_to_box.insert("end", "10")
         cls.buttons.append(x_from_box)
         cls.buttons.append(x_to_box)
         eq_button = tk.Button(text="=", command=partial(cls.f, entry_box, x_from_box, x_to_box))
