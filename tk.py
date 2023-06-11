@@ -1,10 +1,14 @@
 import tkinter as tk
+from tkinter import ttk
+import time
 from functools import partial
 import sympy as sp
 from sympy.plotting import plot
+from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+# Доставлены библиотеки для всех задач
 
 
 class Menu:
@@ -177,16 +181,18 @@ class AnalyticsExpressions:
 
     @classmethod
     def make_expression(cls, s):
-        s = sp.sympify(s)
-        p = sp.pretty(s)
-        cls.print_answer(p)
+        transformations = (standard_transformations + (implicit_multiplication_application,))
+        s = s.replace("=", "-").replace("^", "**")
+        f = sp.parse_expr(s, transformations=transformations)
+        sq = sp.solve(f)
+        cls.print_answer(sq)
     
 
     @classmethod
     def print_answer(cls, answer):
         if cls.answer_label is not None:
             cls.answer_label.destroy()
-        label = tk.Label(text=answer, font=50)
+        label = tk.Label(text=f"Ответ: {answer}", font=50)
         label.place(relx=0.2, rely=0.2)
         cls.answer_label = label
 
@@ -205,13 +211,13 @@ class GraphBuilder:
         x_from_label = tk.Label(text="X от:")
         x_from_label.place(x=80, y=150)
         x_to_label = tk.Label(text="X до:")
-        x_to_label.place(x=80, y=230)
+        x_to_label.place(x=180, y=150)
         cls.buttons.append(x_from_label)
         cls.buttons.append(x_to_label)
         x_from_box = tk.Entry()
         x_from_box.place(x=120, y=135, height=50, width=50)
         x_to_box = tk.Entry()
-        x_to_box.place(x=120, y=215, height=50, width=50)
+        x_to_box.place(x=220, y=135, height=50, width=50)
         x_from_box.insert("end", "-10")
         x_to_box.insert("end", "10")
         cls.buttons.append(x_from_box)
@@ -235,7 +241,19 @@ class GraphBuilder:
         print(s)
         exp = sp.sympify(s)
         x = sp.Symbol('x')
-        plot(exp, (x, from_x, to_x))
+        p = plot(exp, (x, from_x, to_x), show=False)
+        fig, ax = plt.subplots()
+        backend = p.backend(p)
+        backend.ax = ax
+        backend._process_series(backend.parent._series, ax, backend.parent)
+        backend.ax.spines['right'].set_color('none')
+        backend.ax.spines['bottom'].set_position('zero')
+        backend.ax.spines['top'].set_color('none')
+        plt.close(backend.fig)
+        canvas = FigureCanvasTkAgg(fig)
+        canvas.draw()
+        cls.buttons.append(canvas.get_tk_widget())
+        canvas.get_tk_widget().place(relx=0.1, rely=0.25, relwidth=0.8, relheight=0.6)
 
 
     @classmethod
